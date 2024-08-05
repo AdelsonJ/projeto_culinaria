@@ -61,6 +61,11 @@ export default function TagsCadastro() {
                 throw new Error(`Erro na resposta: ${saveResponse.statusText}`);
             }
             alert('Dados salvos com sucesso!');
+            setFormData({
+                name: "",
+                description: "",
+                color: "" // Reseta o campo de cor
+            });
         } catch (error) {
             console.error("Erro ao salvar o arquivo JSON:", error);
         }

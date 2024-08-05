@@ -1,0 +1,7 @@
+{
+  "/page": "app/page.js",
+  "/entidades/tags/page": "app/entidades/tags/page.js",
+  "/entidades/tags/cadastro/page": "app/entidades/tags/cadastro/page.js",
+  "/entidades/tags/alterar_excluir/page": "app/entidades/tags/alterar_excluir/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js"
+}

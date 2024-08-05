@@ -13,6 +13,9 @@ export default function Tags() {
                 <Link href="/entidades/tags/cadastro" passHref>
                     <button className={styles_tags.button}>Cadastrar Nova Tag</button>
                 </Link>
+                <Link href="/entidades/tags/alterar_excluir" passHref>
+                    <button className={styles_tags.button}>Atualizar/Excluir Tag</button>
+                </Link>
             </div>
         </>
     );
