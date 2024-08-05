@@ -1,0 +1,50 @@
+
+.recipe_header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.Recipe_row {
+    display: flex;
+    align-items: flex-start;
+}
+
+.Recipe_row figure {
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.recipe_content {
+    flex: 1;
+}
+
+.recipe_content h2 {
+    font-size: 24px;
+    margin-top: 0;
+}
+
+.recipe_content p {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.stars {
+    display: inline-block;
+    font-size: 0;
+}
+
+.star {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background-image: url('/images/star.jpg');
+    background-size: contain;
+    cursor: pointer;
+}
+
+.ratingvalue {
+    font-size: 24px;
+    margin-left: 10px;
+}

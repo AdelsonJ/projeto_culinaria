@@ -1,0 +1,103 @@
+:root {
+  --font-mono: ui-monospace, Menlo, Monaco, "Cascadia Mono", "Segoe UI Mono",
+    "Roboto Mono", "Oxygen Mono", "Ubuntu Monospace", "Source Code Pro",
+    "Fira Mono", "Droid Sans Mono", "Courier New", monospace;
+
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --loja-blue-rgb: 58, 58, 197;
+  --loja-light-grey-rgb: 190, 190, 220;
+
+}
+
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+
+  html {
+    color-scheme: dark;
+  }
+}
+*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  padding: 2px 0;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+
+h2 {
+  font-size: 42px;
+  margin-bottom: 32px;
+  padding-left: 8px;
+  border-left: 4px solid #f13239;
+}
+
+header {
+  padding: 8px 16px;
+}
+
+header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  row-gap: 8px;
+  column-gap: 24px;
+  padding: 0 16px;
+}
+
+header img {
+  width: 180px;
+  margin-right: 33rem;
+}
+
+header ul {
+  align-items: center;
+  list-style: none;
+  display: flex;
+  margin: 0; /* Remover margens padrão */
+  padding: 0; /* Remover preenchimento padrão */
+}
+
+header ul li + li {
+  margin-left: 24px;
+}
+
+header a {
+  font-size: 32px ;
+  color: #ebebeb;
+ 
+}
+
+header a:hover,
+header a:focus {
+  color: #f13239;
+}
+
+
+footer {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  padding: 64px 24px;
+}
