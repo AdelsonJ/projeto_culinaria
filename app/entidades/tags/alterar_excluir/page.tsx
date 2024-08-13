@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import styles from "../../../page.module.css";
 import styles_tags from "../tags.module.css";
+import TagSelect from "./campoFormulario";
+import TagForm from "./formulario";
+import { useRouter } from "next/navigation";
 
 // Define a interface for a tag
 interface Tag {
@@ -9,10 +12,12 @@ interface Tag {
     description: string;
 }
 
-export default function TagsExclusao() {
+export default function TagsAlterarExcluir() {
     const [tags, setTags] = useState<Tag[]>([]);
     const [selectedTag, setSelectedTag] = useState<string>("");
     const [tagDetails, setTagDetails] = useState<Tag>({ name: "", description: "" });
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -48,8 +53,7 @@ export default function TagsExclusao() {
         });
     };
 
-    const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    const handleUpdate = async () => {
         if (!selectedTag) {
             alert("Selecione uma tag para editar.");
             return;
@@ -73,16 +77,16 @@ export default function TagsExclusao() {
                 throw new Error(`Erro na resposta: ${saveResponse.statusText}`);
             }
             alert('Tag atualizada com sucesso!');
-            setTags(updatedTags); // Atualiza a lista de tags
-            setSelectedTag(""); // Reseta a seleção
-            setTagDetails({ name: "", description: "" }); // Reseta os detalhes
+            setTags(updatedTags);
+            setSelectedTag("");
+            setTagDetails({ name: "", description: "" });
+            router.push('/entidades/tags');
         } catch (error) {
             console.error("Erro ao salvar o arquivo JSON:", error);
         }
     };
 
-    const handleDelete = async (e: React.MouseEvent<HTMLButtonElement>) => {
-        e.preventDefault();
+    const handleDelete = async () => {
         if (!selectedTag) {
             alert("Selecione uma tag para excluir.");
             return;
@@ -104,70 +108,38 @@ export default function TagsExclusao() {
                 throw new Error(`Erro na resposta: ${saveResponse.statusText}`);
             }
             alert('Tag excluída com sucesso!');
-            setTags(updatedTags); // Atualiza a lista de tags
-            setSelectedTag(""); // Reseta a seleção
-            setTagDetails({ name: "", description: "" }); // Reseta os detalhes
+            setTags(updatedTags);
+            setSelectedTag("");
+            setTagDetails({ name: "", description: "" });
+
+            router.push('/entidades/tags');
         } catch (error) {
             console.error("Erro ao salvar o arquivo JSON:", error);
         }
     };
 
     return (
-        <>
-            <main>
-                <section id="gallery" className={styles.gallery}>
-                    <div className={styles.container}>
-                        <h2>Excluir ou Editar Tags</h2>
-                        <div className={styles_tags.container}>
-                            <form onSubmit={handleUpdate}>
-                                <label htmlFor="tags">Selecione uma Tag:</label>
-                                <br />
-                                <select
-                                    id="tags"
-                                    name="tags"
-                                    value={selectedTag}
-                                    onChange={handleSelectChange}
-                                >
-                                    <option value="">Selecione uma tag</option>
-                                    {tags.map((tag) => (
-                                        <option key={tag.name} value={tag.name}>
-                                            {tag.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <br />
-                                <br />
-                                {selectedTag && (
-                                    <>
-                                        <label htmlFor="name">Nome:</label>
-                                        <br />
-                                        <input
-                                            type="text"
-                                            id="name"
-                                            name="name"
-                                            value={tagDetails.name}
-                                            onChange={handleInputChange}
-                                        />
-                                        <br />
-                                        <label htmlFor="description">Descrição:</label>
-                                        <br />
-                                        <textarea
-                                            id="description"
-                                            name="description"
-                                            value={tagDetails.description}
-                                            onChange={handleInputChange}
-                                        />
-                                        <br />
-                                        <br />
-                                        <button type="submit">Atualizar</button>
-                                        <button type="button" onClick={handleDelete}>Excluir</button>
-                                    </>
-                                )}
-                            </form>
-                        </div>
+        <main>
+            <section id="gallery" className={styles.gallery}>
+                <div className={styles.container}>
+                    <h2>Excluir ou Editar Tags</h2>
+                    <div className={styles_tags.tags_container}>
+                        <TagSelect
+                            tags={tags}
+                            selectedTag={selectedTag}
+                            handleSelectChange={handleSelectChange}
+                        />
+                        {selectedTag && (
+                            <TagForm
+                                tagDetails={tagDetails}
+                                handleInputChange={handleInputChange}
+                                handleUpdate={handleUpdate}
+                                handleDelete={handleDelete}
+                            />
+                        )}
                     </div>
-                </section>
-            </main>
-        </>
+                </div>
+            </section>
+        </main>
     );
 }

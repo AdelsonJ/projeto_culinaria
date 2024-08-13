@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import styles from "../../page.module.css"; //
+import styles from "./tags.module.css"; 
 
 interface Tag {
     name: string;
@@ -62,7 +62,7 @@ export default function DataTable() {
                         <tr key={index}>
                             <td>{item.name}</td>
                             <td>{item.description}</td>
-                            <td style={{ backgroundColor: item.color }}>{item.color}</td>
+                            <td style={{ backgroundColor: item.color }}></td>
                         </tr>
                     ))}
                 </tbody>

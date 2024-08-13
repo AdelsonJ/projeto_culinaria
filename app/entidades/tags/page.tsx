@@ -11,10 +11,10 @@ export default function Tags() {
             </div>
             <div className={styles_tags.button_container}>
                 <Link href="/entidades/tags/cadastro" passHref>
-                    <button className={styles_tags.button}>Cadastrar Nova Tag</button>
+                    <button className={styles_tags.button}>Cadastrar</button>
                 </Link>
                 <Link href="/entidades/tags/alterar_excluir" passHref>
-                    <button className={styles_tags.button}>Atualizar/Excluir Tag</button>
+                    <button className={styles_tags.button}>Atualizar/Excluir</button>
                 </Link>
             </div>
         </>

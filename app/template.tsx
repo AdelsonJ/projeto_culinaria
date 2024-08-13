@@ -15,13 +15,15 @@ export default function Template({
       <header className={styles.dark}>
         <div className={styles.container_header}>
           <img className={styles.logo} src="/images/chefe.png" alt="Logo Chefe" />
-          <ul>
-            <li><Link href="/">Home</Link></li>
-            <li><Link href="/entidades/ingrediente">Ingrediente</Link></li>
-            <li><Link href="">Receita</Link></li>
-            <li><Link href="/entidades/tags">Tags</Link></li>
-            <li><Link href="">Login</Link></li>
-          </ul>
+          <div className={styles.container_header_2}>
+            <ul>
+              <li><Link href="/">Home</Link></li>
+              <li><Link href="/entidades/ingrediente">Ingrediente</Link></li>
+              <li><Link href="">Receita</Link></li>
+              <li><Link href="/entidades/tags">Tags</Link></li>
+              <li><Link href="">Login</Link></li>
+            </ul>
+          </div>
         </div>
       </header>
 

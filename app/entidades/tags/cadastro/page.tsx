@@ -2,15 +2,25 @@
 import { useState } from "react";
 import styles from "../../../page.module.css";
 import styles_tags from "../tags.module.css";
+import Form from './formulario';
+import { useRouter } from "next/navigation";
+
+type FormDataType = {
+    name: string;
+    description: string;
+    color: string;
+};
 
 export default function TagsCadastro() {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormDataType>({
         name: "",
         description: "",
-        color: "" // Adiciona o campo de cor
+        color: ""
     });
 
-    const handleChange = (e: { target: { name: any; value: any; }; }) => {
+    const router = useRouter();
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
             ...prevState,
@@ -18,36 +28,32 @@ export default function TagsCadastro() {
         }));
     };
 
-    const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('Formulário enviado'); // Verifica se a função está sendo chamada
+        console.log('Formulário enviado');
 
-        // Cria um novo objeto com os dados do formulário
         const newData = formData;
-        console.log('Novo dado:', newData); // Verifica os dados do formulário
+        console.log('Novo dado:', newData);
 
-        // Busca o arquivo JSON existente do servidor
         let existingData = [];
 
         try {
-            const response = await fetch('http://localhost:5000/tags'); // Atualize para o endereço do seu servidor
+            const response = await fetch('http://localhost:5000/tags');
             if (!response.ok) {
                 throw new Error(`Erro na resposta: ${response.statusText}`);
             }
             existingData = await response.json();
-            console.log('Dados existentes:', existingData); // Verifica os dados existentes
+            console.log('Dados existentes:', existingData);
         } catch (error) {
             console.error("Erro ao buscar o arquivo JSON:", error);
-            return; // Adiciona um return para não continuar se houve erro
+            return;
         }
 
-        // Adiciona os novos dados
         existingData.push(newData);
-        console.log('Dados após inserção:', existingData); // Verifica os dados após inserção
+        console.log('Dados após inserção:', existingData);
 
-        // Salva o arquivo JSON atualizado no servidor
         const updatedData = JSON.stringify(existingData, null, 2);
-        console.log('Dados atualizados:', updatedData); // Verifica os dados JSON atualizados
+        console.log('Dados atualizados:', updatedData);
 
         try {
             const saveResponse = await fetch('http://localhost:5000/saveTags', {
@@ -64,68 +70,29 @@ export default function TagsCadastro() {
             setFormData({
                 name: "",
                 description: "",
-                color: "" // Reseta o campo de cor
+                color: ""
             });
+            
+            router.push('/entidades/tags');
         } catch (error) {
             console.error("Erro ao salvar o arquivo JSON:", error);
         }
     };
 
     return (
-        <>
-            <main>
-                <section id="gallery" className={styles.gallery}>
-                    <div className={styles.container}>
-                        <h2>Cadastrar Tags</h2>
-                        <div className={styles_tags.container}>
-                            <form onSubmit={handleSubmit}>
-                                <label htmlFor="name">Nome:</label>
-                                <br />
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                />
-                                <br />
-                                <br />
-                                <label htmlFor="description">Descrição:</label>
-                                <br />
-                                <input
-                                    type="text"
-                                    id="description"
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                />
-                                <br />
-                                <br />
-                                <label htmlFor="color">Cor:</label>
-                                <br />
-                                <select
-                                    id="color"
-                                    name="color"
-                                    value={formData.color}
-                                    onChange={handleChange}
-                                >
-                                    <option value="">Selecione uma cor</option>
-                                    <option value="red">Vermelho</option>
-                                    <option value="green">Verde</option>
-                                    <option value="blue">Azul</option>
-                                    <option value="yellow">Amarelo</option>
-                                    <option value="purple">Roxo</option>
-                                    {/* Adicione mais opções conforme necessário */}
-                                </select>
-                                <br />
-                                <br />
-                                <button type="submit">Confirmar</button>
-                            </form>
-                        </div>
+        <main>
+            <section id="gallery" className={styles.gallery}>
+                <div className={styles.container}>
+                    <h2>Cadastrar Tags</h2>
+                    <div className={styles_tags.container}>
+                        <Form
+                            formData={formData}
+                            handleChange={handleChange}
+                            handleSubmit={handleSubmit}
+                        />
                     </div>
-                </section>
-            </main>
-        </>
+                </div>
+            </section>
+        </main>
     );
 }
-

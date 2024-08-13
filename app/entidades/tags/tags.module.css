@@ -5,6 +5,21 @@
   display: flex;
   align-items: center;
 }
+
+
+.tags_container {
+  width: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.tags_container .button{
+  flex-direction:row;
+}
+
+
 .button_container {
   display: flex;
   justify-content: center;
@@ -25,8 +40,35 @@
   transition: background-color 0.3s;
   margin-right: 1rem;
   margin-left: 1rem;
+  flex-direction: row;
 }
 
 .button:hover {
   background-color: #c11b1f; /* Cor do botão ao passar o mouse */
 }
+
+.tableContainer {
+  margin: 20px;
+}
+
+.table {
+  width: 85%;
+  border-collapse: collapse;
+  margin: 20px auto;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table th {
+  background-color: #f4f4f4;
+}
+
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+

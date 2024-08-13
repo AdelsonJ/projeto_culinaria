@@ -1,12 +1,17 @@
 [
   {
-    "name": "Lactose",
-    "description": "Contem derivados do leite",
-    "color": "purple"
+    "name": "Gluten",
+    "description": "contém glutem.",
+    "color": "yellow"
   },
   {
-    "name": "Gluten",
-    "description": "Alimento que contem gluten",
-    "color": "yellow"
+    "name": "Lactose",
+    "description": "Tem derivados do leite",
+    "color": "blue"
+  },
+  {
+    "name": "Lactose",
+    "description": "aaaa",
+    "color": "red"
   }
 ]

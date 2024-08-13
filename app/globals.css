@@ -68,7 +68,6 @@ header .container {
 
 header img {
   width: 180px;
-  margin-right: 33rem;
 }
 
 header ul {
@@ -100,4 +99,16 @@ footer {
   justify-content: center;
   display: flex;
   padding: 64px 24px;
+}
+
+
+input, select, textarea {
+  text-align: start;
+  width: 100%; 
+  margin: 0%;
+}
+
+label {
+  display: block;
+  margin: 0%;
 }
