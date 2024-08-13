@@ -61,7 +61,7 @@ export default function Form({ formData, handleChange, handleSubmit }: FormProps
         handleChange({
             target: {
                 name: "icon",
-                value: icon
+                value: `/images/${icon}`  // Prefixo "/images/"
             }
         } as React.ChangeEvent<HTMLInputElement>);
         setShowModal(false);
@@ -83,7 +83,7 @@ export default function Form({ formData, handleChange, handleSubmit }: FormProps
             </button>
             {formData.icon && (
                 <div>
-                    Ícone Selecionado: <img src={`/images/${formData.icon}`} alt="Icone selecionado" className={styles_ingredientes.preview} />
+                    Ícone Selecionado: <img src={formData.icon} alt="Icone selecionado" className={styles_ingredientes.preview} />
                 </div>
             )}
             
