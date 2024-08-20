@@ -1,4 +1,4 @@
-// File: /home/adelson/UFSJ/7_periodo/tec_web/tp/projeto_culinaria/app/entidades/tags/page.tsx
+// File: D:\MatheusT\UFSJ\7º semestre\TecWeb\projetoTecWeb\EntregaFinal\projeto_culinaria-main\projeto_culinaria\app\entidades\tags\page.tsx
 import * as entry from '../../../../../app/entidades/tags/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

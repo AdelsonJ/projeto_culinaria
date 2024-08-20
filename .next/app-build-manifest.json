@@ -18,17 +18,21 @@
       "static/css/app/template.css",
       "static/chunks/app/template.js"
     ],
-    "/entidades/tags/page": [
+    "/entidades/receita/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/tags/page.css",
-      "static/chunks/app/entidades/tags/page.js"
+      "static/chunks/app/entidades/receita/[id]/page.js"
     ],
-    "/entidades/tags/alterar_excluir/page": [
+    "/entidades/receita/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/tags/alterar_excluir/page.css",
-      "static/chunks/app/entidades/tags/alterar_excluir/page.js"
+      "static/chunks/app/entidades/receita/page.js"
+    ],
+    "/entidades/receita/cadastro/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/entidades/receita/cadastro/page.css",
+      "static/chunks/app/entidades/receita/cadastro/page.js"
     ],
     "/entidades/ingrediente/page": [
       "static/chunks/webpack.js",
@@ -36,17 +40,22 @@
       "static/css/app/entidades/ingrediente/page.css",
       "static/chunks/app/entidades/ingrediente/page.js"
     ],
-    "/entidades/tags/cadastro/page": [
+    "/entidades/tags/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/tags/cadastro/page.css",
-      "static/chunks/app/entidades/tags/cadastro/page.js"
+      "static/css/app/entidades/tags/page.css",
+      "static/chunks/app/entidades/tags/page.js"
     ],
-    "/entidades/ingrediente/cadastro/page": [
+    "/entidades/receita/alterar_excluir/[id]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/ingrediente/cadastro/page.css",
-      "static/chunks/app/entidades/ingrediente/cadastro/page.js"
+      "static/css/app/entidades/receita/alterar_excluir/[id]/page.css",
+      "static/chunks/app/entidades/receita/alterar_excluir/[id]/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }
