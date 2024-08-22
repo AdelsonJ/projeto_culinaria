@@ -67,15 +67,17 @@ export default function Home() {
 
             <div className={styles.gallery_row}>
             <figure className={styles.massas}>
-              <img src="/images/lasanha.jpg" alt="Lasanha" />
+              <img src="/images/lasanha de frango.jpg" alt="Lasanha" />
               <a className={styles.recipe} title="Recipe">
-                <Link href="/entidades/receita/1">Lasanha</Link> {/* Substitua 1 pelo ID real da receita */}
+                <Link href="/entidades/receita/1">Lasanha</Link> 
               </a>
             </figure>
 
               <figure>
                 <img src="/images/feijoada.jpg" alt="Feijoada" />
-                <figcaption>Feijoada</figcaption>
+                <a className={styles.recipe} title="Recipe">
+                <Link href="/entidades/receita/2">Feijoada</Link> 
+              </a>
               </figure>
 
               <figure>

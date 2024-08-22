@@ -2,8 +2,10 @@
   "/_not-found/page": "app/_not-found/page.js",
   "/entidades/receita/[id]/page": "app/entidades/receita/[id]/page.js",
   "/entidades/receita/page": "app/entidades/receita/page.js",
-  "/page": "app/page.js",
   "/entidades/receita/cadastro/page": "app/entidades/receita/cadastro/page.js",
-  "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js",
-  "/entidades/receita/alterar_excluir/[id]/page": "app/entidades/receita/alterar_excluir/[id]/page.js"
+  "/entidades/receita/alterar_excluir/[id]/page": "app/entidades/receita/alterar_excluir/[id]/page.js",
+  "/entidades/tags/page": "app/entidades/tags/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js"
 }

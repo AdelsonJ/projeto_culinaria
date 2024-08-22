@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 const prisma = new PrismaClient();
 
@@ -18,9 +18,18 @@ export default async function Receita({ params }) {
         return <div>Receita não encontrada</div>;
     }
 
+    const imagePath = `/images/${receita.nome.toLowerCase()}.jpg`;
+
     return (
         <div>
             <h1>{receita.nome}</h1>
+            <Image 
+                src={imagePath} 
+                alt={receita.nome} 
+                width={800} 
+                height={600} 
+                priority 
+            />
             <p>{receita.modoPreparo}</p>
             <ul>
                 {receita.Contems.map((contem) => (
