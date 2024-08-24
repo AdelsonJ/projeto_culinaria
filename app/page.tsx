@@ -1,11 +1,28 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
+import axios from "axios";
 import styles from "./page.module.css";
 import Link from "next/link";
 
 export default function Home() {
   const loginPopupRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLSelectElement>(null);
+  const [receitas, setReceitas] = useState([]);
+
+  useEffect(() => {
+    async function fetchReceitas() {
+      try {
+        const response = await axios.get("http://localhost:5000/receitas");
+        console.log(response.data); // Adicione este log para verificar os dados no console
+        setReceitas(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar receitas:", error);
+      }
+    }
+
+    fetchReceitas();
+  }, []);
+
 
   const openPopup = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault();
@@ -61,94 +78,22 @@ export default function Home() {
                 <option value="all">Todos</option>
                 <option value="massas">Massas</option>
                 <option value="caldos">Caldos</option>
-                <option value="salgados">Salgados</option>
+                <option value="sobremesas">Sobremesas</option>
               </select>
             </div>
 
-            <div className={styles.gallery_row}>
-            <figure className={styles.massas}>
-              <img src="/images/lasanha de frango.jpg" alt="Lasanha" />
-              <a className={styles.recipe} title="Recipe">
-                <Link href="/entidades/receita/1">Lasanha</Link> 
-              </a>
-            </figure>
-
-              <figure>
-                <img src="/images/feijoada.jpg" alt="Feijoada" />
-                <a className={styles.recipe} title="Recipe">
-                <Link href="/entidades/receita/2">Feijoada</Link> 
-              </a>
-              </figure>
-
-              <figure>
-                <img src="/images/strogonoff.jpg" alt="Strogonoff" />
-                <figcaption>Strogonoff</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/pastel.jpg" alt="Pastel" />
-                <figcaption>Pastel</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/coxinha.jpg" alt="Coxinha" />
-                <figcaption>Coxinha</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/moqueca.jpg" alt="Moqueca" />
-                <figcaption>Moqueca</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/pao_de_queijo.jpg" alt="Pao de Queijo" />
-                <figcaption>Pão de Queijo</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/suco_verde.jpg" alt="Suco Verde" />
-                <figcaption>Suco Verde</figcaption>
-              </figure>
-
-              <figure>
-                <img src="/images/pure_de_batata.jpg" alt="Pure de Batata" />
-                <figcaption>Purê de Batata</figcaption>
-              </figure>
-            </div>
-          </div>
-        </section>
-
-        <section id="history" className={`${styles.history} ${styles.dark}`}>
-          <div className={styles.container}>
-            <div className={styles.col}>
-              <h2>História</h2>
-
-              <p>
-                O chefe de cozinha é o profissional responsável por organizar a
-                cozinha de hotéis e restaurantes, elaborar cardápios e
-                supervisionar o trabalho dos cozinheiros. Os chefes planejam a
-                execução do prato, o pré-preparo, o preparo, a finalização, a
-                qualidade dos alimentos e os métodos de cozimento.
-                Características indispensáveis são higiene, metodologia, bom
-                senso, criatividade, responsabilidade, capacidade de liderança e
-                feeling para novas experiências.
-              </p>
-
-              <p>
-                Fonte:
-                <a
-                  className="dark-link"
-                  href="https://www.infoescola.com/profissoes/chefe-de-cozinha/"
-                  target="_blank"
-                  title="Link externo"
-                >
-                  InfoEscola
-                </a>
-              </p>
-            </div>
-
-            <div className="col">
-              <img src="/images/chefe_historia.png" alt="Chefe de culinária." />
+            <div className="gallery-row">
+              {receitas.map((receita) => {
+                // Processa o nome da receita para gerar o nome do arquivo da imagem
+                const imagemSrc = `/images/${receita.nome.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+                return (
+                  <figure key={receita.id} className={styles.receita}>
+                    <img src={imagemSrc} alt={receita.nome} />
+                    <figcaption>{receita.nome}</figcaption>
+                    <Link href={`/entidades/receita/${receita.id}`}>Ver Receita</Link>
+                  </figure>
+                );
+              })}
             </div>
           </div>
         </section>
