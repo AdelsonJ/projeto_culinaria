@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import styles from "./page.module.css";
-import Login from "./ui/login";
 
 export default function Template({
   children,
@@ -21,7 +20,7 @@ export default function Template({
               <li><Link href="/entidades/ingrediente">Ingrediente</Link></li>
               <li><Link href="/entidades/receita">Receitas</Link></li>
               <li><Link href="/entidades/tags">Tags</Link></li>
-              <li><Link href="">Login</Link></li>
+              <li><Link href="/ui/login">Login</Link></li>
             </ul>
           </div>
         </div>

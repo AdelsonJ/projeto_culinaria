@@ -22,6 +22,14 @@
   align-items: center;
 }
 
+.page_gallery_row__bu89B {
+  display: flex;
+}
+
+.page_gallery_row__bu89B figure {
+  text-align: left; /* Centraliza o texto e a imagem */
+}
+
 
 .page_recipe__vAd5E{
   background-color: #ffffff;

@@ -1,7 +1,9 @@
 {
-  "/entidades/receita/page": "app/entidades/receita/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
   "/page": "app/page.js",
-  "/entidades/receita/cadastro/page": "app/entidades/receita/cadastro/page.js",
   "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js",
-  "/entidades/tags/page": "app/entidades/tags/page.js"
+  "/entidades/tags/page": "app/entidades/tags/page.js",
+  "/entidades/ingrediente/alterar_excluir/page": "app/entidades/ingrediente/alterar_excluir/page.js",
+  "/entidades/receita/[id]/page": "app/entidades/receita/[id]/page.js",
+  "/ui/login": "app/ui/login.js"
 }

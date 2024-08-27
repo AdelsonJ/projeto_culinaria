@@ -1,134 +1,88 @@
 /*!*************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[7].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[7].use[3]!./app/entidades/receita/receitas.module.css ***!
   \*************************************************************************************************************************************************************************************************************************************************************************************/
+.receitas_recipeContainer__2liDN {
+    margin: 0 auto;
+    max-width: 1000px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-.receitas_recipe_header__vV_1P {
+.receitas_recipeHeader__lrJk_ {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
+    margin-bottom: 20px;
 }
 
-.receitas_Recipe_row__7aovn {
+.receitas_recipeHeader__lrJk_ h1 {
+    font-size: 36px;
+    color: #333;
+}
+
+.receitas_recipeRow__Nx_Bp {
     display: flex;
     align-items: flex-start;
-}
-
-.receitas_Recipe_row__7aovn figure {
-    margin-right: 20px;
+    gap: 40px;
     margin-bottom: 20px;
 }
 
-.receitas_recipe_content__HkZQY {
+.receitas_recipeRow__Nx_Bp figure {
     flex: 1 1;
+    margin: 0;
 }
 
-.receitas_recipe_content__HkZQY h2 {
-    font-size: 24px;
-    margin-top: 0;
+.receitas_recipeRow__Nx_Bp .receitas_recipeImage__F__23 {
+    border-radius: 8px;
 }
 
-.receitas_recipe_content__HkZQY p {
-    font-size: 16px;
-    line-height: 1.5;
+.receitas_recipeContent__uACZA {
+    flex: 2 1;
+}
+
+.receitas_recipeContent__uACZA h2 {
+    font-size: 28px;
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.receitas_recipeContent__uACZA p {
+    font-size: 18px;
+    line-height: 1.6;
     margin-bottom: 20px;
+    color: #666;
+}
+
+.receitas_recipeContent__uACZA ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.receitas_recipeContent__uACZA ul li {
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #444;
 }
 
 .receitas_stars__Fb7_f {
-    display: inline-block;
-    font-size: 0;
+    display: flex;
+    align-items: center;
 }
 
-.receitas_star__YffBM {
-    display: inline-block;
+.receitas_stars__Fb7_f .receitas_star__YffBM {
     width: 30px;
     height: 30px;
     background-image: url('/images/star.jpg');
-    background-size: contain;
-    cursor: pointer;
+    background-size: cover;
+    margin-right: 5px;
 }
 
-.receitas_ratingvalue___5itG {
+.receitas_ratingValue__Rinvo {
     font-size: 24px;
     margin-left: 10px;
+    color: #444;
 }
 
-.receitas_tableContainer__D6tPo {
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-
-.receitas_table__LTQA7 {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.receitas_table__LTQA7 th, .receitas_table__LTQA7 td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.receitas_table__LTQA7 th {
-    background-color: #f2f2f2;
-}
-
-.receitas_tableContainer__D6tPo {
-    margin: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-
-.receitas_table__LTQA7 {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.receitas_table__LTQA7 th, .receitas_table__LTQA7 td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-}
-
-.receitas_table__LTQA7 th {
-    background-color: #f2f2f2;
-}
-
-.receitas_form__a_QJj {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-}
-
-.receitas_ingredientBox__Wgyym {
-    max-height: 150px;
-    overflow-y: scroll;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: #fff;
-}
-
-.receitas_ingredientItem__rj_HD {
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-.receitas_ingredientItem__rj_HD:hover {
-    background-color: #f0f0f0;
-}
-
-.receitas_selectedIngredients__O5yGl ul {
-    list-style-type: none;
-    padding: 0;
-}

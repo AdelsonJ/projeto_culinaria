@@ -3,8 +3,13 @@ import psycopg2
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
+import bcrypt
+import jwt
 
 app = Flask(__name__)
+
+# Configuração da chave secreta para JWT
+app.config['SECRET_KEY'] = 'sua-chave-secreta'  # Altere para uma chave segura
 
 # Configuração do banco de dados
 DATABASE_URL = {
@@ -13,6 +18,7 @@ DATABASE_URL = {
     'password': '84650052',
     'host': 'localhost'
 }
+
 
 def connect_db():
     conn = psycopg2.connect(**DATABASE_URL)
@@ -51,6 +57,85 @@ class CreateReceita(BaseModel):
     usuarioUsername: str
     modoPreparo: str
     ingredientes: Optional[List[Ingrediente]] = []
+    
+# Função para proteger rotas usando JWT
+def token_required(f):
+    def decorator(*args, **kwargs):
+        token = request.headers.get('Authorization').split(" ")[1]
+        if not token:
+            return jsonify({"message": "Token é necessário!"}), 401
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_username = data['username']
+        except:
+            return jsonify({"message": "Token é inválido!"}), 401
+        return f(current_username, *args, **kwargs)
+    return decorator
+
+# Exemplo de rota protegida
+@app.route('/protected', methods=['GET'])
+@token_required
+def protected_route(current_username):
+    return jsonify({"message": f"Bem-vindo, usuário {current_username}!"}), 200
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    email = data['email']
+    senha = data['senha']
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    # Buscar o usuário pelo email
+    cursor.execute('SELECT username, senha FROM "Usuario" WHERE email=%s', (email,))
+    user = cursor.fetchone()
+
+    cursor.close()
+    conn.close()
+
+    # Verificar se o usuário existe e se a senha está correta
+    if not user or not bcrypt.checkpw(senha.encode('utf-8'), user[1].encode('utf-8')):
+        return jsonify({"message": "Credenciais inválidas"}), 401
+
+    # Gerar o token JWT
+    token = jwt.encode({
+        'username': user[0],
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    }, app.config['SECRET_KEY'], algorithm="HS256")
+
+    return jsonify({"token": token}), 200
+
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    email = data['email']
+    senha = data['senha']
+    username = data['username']  # Adiciona o username
+    data_nasc = data.get('data_nasc')  # Adiciona a data de nascimento
+    idade = data.get('idade')  # Adiciona a idade
+    tipo = data.get('tipo', 'user')  # Define o tipo de usuário, padrão 'user'
+
+    # Hash da senha usando bcrypt
+    hashed_password = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO "Usuario" (username, email, senha, data_nasc, idade, tipo) 
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (username, email, hashed_password.decode('utf-8'), data_nasc, idade, tipo))
+        conn.commit()
+    except psycopg2.Error as e:
+        return jsonify({"message": "Erro ao registrar usuário", "error": str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()
+
+    return jsonify({"message": "Usuário registrado com sucesso!"}), 201
 
 # Obter todas as receitas
 @app.route("/receitas", methods=["GET"])

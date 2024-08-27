@@ -82,19 +82,19 @@ export default function Home() {
               </select>
             </div>
 
-            <div className="gallery-row">
-              {receitas.map((receita) => {
-                // Processa o nome da receita para gerar o nome do arquivo da imagem
-                const imagemSrc = `/images/${receita.nome.toLowerCase().replace(/\s+/g, '-')}.jpg`;
-                return (
-                  <figure key={receita.id} className={styles.receita}>
-                    <img src={imagemSrc} alt={receita.nome} />
-                    <figcaption>{receita.nome}</figcaption>
-                    <Link href={`/entidades/receita/${receita.id}`}>Ver Receita</Link>
-                  </figure>
-                );
-              })}
-            </div>
+            <div className={styles.gallery_row}>
+            {receitas.map((receita) => {
+              // Processa o nome da receita para gerar o nome do arquivo da imagem
+              const imagemSrc = `/images/${receita.nome.toLowerCase().replace(/\s+/g, '-')}.jpg`;
+              return (
+                <figure key={receita.id} className={styles.receita}>
+                  <img src={imagemSrc} alt={receita.nome} />
+                  <figcaption>{receita.nome}</figcaption>
+                  <Link href={`/entidades/receita/${receita.id}`}>Ver Receita</Link>
+                </figure>
+              );
+            })}
+          </div>
           </div>
         </section>
       </div>
