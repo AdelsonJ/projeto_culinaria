@@ -6,7 +6,6 @@ import styles from "../receitas.module.css";
 
 export default function CadastrarReceita() {
   const [nome, setNome] = useState('');
-  const [nota, setNota] = useState(1);
   const [modoPreparo, setModoPreparo] = useState('');
   const [ingredientesDisponiveis, setIngredientesDisponiveis] = useState([]);
   const [ingredientesSelecionados, setIngredientesSelecionados] = useState([]);
@@ -39,7 +38,6 @@ export default function CadastrarReceita() {
       const response = await axios.get(`http://localhost:5000/receitas/${id}`);
       const receita = response.data;
       setNome(receita.nome);
-      setNota(receita.nota);
       setModoPreparo(receita.modoPreparo);
       setIngredientesSelecionados(receita.ingredientes);
     } catch (error) {
@@ -52,10 +50,13 @@ export default function CadastrarReceita() {
     const receita = {
       nome,
       data_pub: new Date().toISOString(),
-      nota,
+      nota: 1,  // Nota padrão 1
       usuarioUsername: 'admin',
       modoPreparo,
-      ingredientes: ingredientesSelecionados.map(i => ({ nome: i.nome, quantidade: i.quantidade }))
+      ingredientes: ingredientesSelecionados.map(i => ({
+        nome: i.name,
+        quantidade: i.quantidade  // Quantidade selecionada pelo usuário como texto
+      }))
     };
 
     try {
@@ -64,6 +65,7 @@ export default function CadastrarReceita() {
       } else {
         await axios.post("http://localhost:5000/receitas", receita);
       }
+      alert("Receita criada com sucesso!");
       router.push('/entidades/receita');
     } catch (error) {
       console.error('Erro ao cadastrar ou alterar a receita', error);
@@ -71,7 +73,14 @@ export default function CadastrarReceita() {
   };
 
   const handleIngredientSelect = (ingrediente) => {
-    setIngredientesSelecionados((prev) => [...prev, ingrediente]);
+    const quantidade = prompt(`Informe a quantidade para o ingrediente "${ingrediente.name}":`, '1 unidade');
+    if (quantidade) {
+      const ingredienteComQuantidade = {
+        ...ingrediente,
+        quantidade  // Armazena a quantidade como texto
+      };
+      setIngredientesSelecionados((prev) => [...prev, ingredienteComQuantidade]);
+    }
   };
 
   return (
@@ -87,15 +96,6 @@ export default function CadastrarReceita() {
             onChange={(e) => setNome(e.target.value)} 
             required 
           />
-        </label>
-
-        <label>
-          Nota:
-          <select value={nota} onChange={(e) => setNota(Number(e.target.value))}>
-            {[1, 2, 3, 4, 5].map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
         </label>
 
         <label>
@@ -131,12 +131,11 @@ export default function CadastrarReceita() {
           </div>
         </label>
 
-
         <div className={styles.selectedIngredients}>
           <h3>Ingredientes Selecionados:</h3>
           <ul>
             {ingredientesSelecionados.map((ingrediente, index) => (
-              <li key={index}>{ingrediente.nome}</li>
+              <li key={index}>{ingrediente.name} - {ingrediente.quantidade}</li>
             ))}
           </ul>
         </div>

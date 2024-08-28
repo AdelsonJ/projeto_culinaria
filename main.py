@@ -5,6 +5,7 @@ from typing import List, Optional
 from datetime import datetime
 import bcrypt
 import jwt
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -97,15 +98,15 @@ def login():
 
     # Verificar se o usuário existe e se a senha está correta
     if not user or not bcrypt.checkpw(senha.encode('utf-8'), user[1].encode('utf-8')):
-        return jsonify({"message": "Credenciais inválidas"}), 401
+        return jsonify({"message": "Credenciais inválidas", "success": False}), 401
 
     # Gerar o token JWT
     token = jwt.encode({
         'username': user[0],
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        'exp': datetime.utcnow() + timedelta(hours=1)
     }, app.config['SECRET_KEY'], algorithm="HS256")
 
-    return jsonify({"token": token}), 200
+    return jsonify({"token": token, "username": user[0], "success": True}), 200
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -117,11 +118,20 @@ def register():
     idade = data.get('idade')  # Adiciona a idade
     tipo = data.get('tipo', 'user')  # Define o tipo de usuário, padrão 'user'
 
-    # Hash da senha usando bcrypt
-    hashed_password = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
-
     conn = connect_db()
     cursor = conn.cursor()
+
+    # Verifica se já existe um usuário com o mesmo e-mail ou username
+    cursor.execute('SELECT 1 FROM "Usuario" WHERE email = %s OR username = %s', (email, username))
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        cursor.close()
+        conn.close()
+        return jsonify({"message": "E-mail ou nome de usuário já está em uso"}), 400
+
+    # Hash da senha usando bcrypt
+    hashed_password = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
     try:
         cursor.execute("""
@@ -204,33 +214,43 @@ def create_receita():
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Insere a nova receita
-    cursor.execute("""
-        INSERT INTO "Receita" (nome, data_pub, nota, "usuarioUsername", "modoPreparo") 
-        VALUES (%s, %s, %s, %s, %s) RETURNING id
-    """, (data['nome'], data['data_pub'], data['nota'], usuario_username, data['modoPreparo']))
-
-    receita_id = cursor.fetchone()[0]
-
-    # Insere os ingredientes associados à receita
-    for ingrediente in data['ingredientes']:
-        quantidade = ingrediente.get('quantidade') or '1'  # Define um valor padrão para quantidade se for None ou vazio
+    try:
+        # Insere a nova receita, definindo a nota como 1
         cursor.execute("""
-            INSERT INTO "Ingrediente" (nome, "usuarioUsername") 
-            VALUES (%s, %s)
-            ON CONFLICT (nome) DO NOTHING
-        """, (ingrediente['nome'], usuario_username))
-        
-        cursor.execute("""
-            INSERT INTO "Contem" ("receitaId", "ingredNome", quantidade) 
-            VALUES (%s, %s, %s)
-        """, (receita_id, ingrediente['nome'], quantidade))
+            INSERT INTO "Receita" (nome, data_pub, nota, "usuarioUsername", "modoPreparo") 
+            VALUES (%s, %s, %s, %s, %s) RETURNING id
+        """, (data['nome'], data['data_pub'], 1, usuario_username, data['modoPreparo']))
+        receita_id = cursor.fetchone()[0]
 
-    conn.commit()
-    cursor.close()
-    conn.close()
+        # Insere os ingredientes e cria a relação na tabela `Contem`
+        for ingrediente in data['ingredientes']:
+            quantidade = ingrediente.get('quantidade')
+            if not quantidade:  # Se a quantidade estiver ausente ou nula, definir como 1
+                quantidade = '1'
+            
+            # Verifica se o ingrediente já existe
+            cursor.execute("""
+                INSERT INTO "Ingrediente" (nome, "usuarioUsername") 
+                VALUES (%s, %s)
+                ON CONFLICT (nome) DO NOTHING
+            """, (ingrediente['nome'], usuario_username))
 
-    return jsonify({"id": receita_id}), 201
+            # Insere a relação na tabela `Contem`
+            cursor.execute("""
+                INSERT INTO "Contem" ("receitaId", "ingredNome", "quantidade") 
+                VALUES (%s, %s, %s)
+            """, (receita_id, ingrediente['nome'], quantidade))
+
+        conn.commit()
+        return jsonify({"message": "Receita criada com sucesso!", "id": receita_id}), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao criar receita", "error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 
 @app.route("/receitas/<int:id>", methods=["PUT"])
 @app.route("/receitas/<int:id>", methods=["PUT"])
@@ -240,10 +260,10 @@ def update_receita(id):
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Atualiza a receita
+    # Atualiza a receita, fixando a nota como 1
     cursor.execute("""
         UPDATE "Receita" SET nome=%s, nota=%s, "modoPreparo"=%s WHERE id=%s
-    """, (data['nome'], data['nota'], data['modoPreparo'], id))
+    """, (data['nome'], 1, data['modoPreparo'], id))
 
     # Remove os ingredientes atuais da receita
     cursor.execute('DELETE FROM "Contem" WHERE "receitaId"=%s', (id,))

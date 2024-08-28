@@ -36,23 +36,17 @@
       "static/css/app/entidades/tags/page.css",
       "static/chunks/app/entidades/tags/page.js"
     ],
-    "/entidades/receita/cadastro/page": [
+    "/ui/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/receita/cadastro/page.css",
-      "static/chunks/app/entidades/receita/cadastro/page.js"
+      "static/css/app/ui/login/page.css",
+      "static/chunks/app/ui/login/page.js"
     ],
-    "/entidades/ingrediente/cadastro/page": [
+    "/ui/Cadastro/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/css/app/entidades/ingrediente/cadastro/page.css",
-      "static/chunks/app/entidades/ingrediente/cadastro/page.js"
-    ],
-    "/entidades/ingrediente/alterar_excluir/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/css/app/entidades/ingrediente/alterar_excluir/page.css",
-      "static/chunks/app/entidades/ingrediente/alterar_excluir/page.js"
+      "static/css/app/ui/Cadastro/page.css",
+      "static/chunks/app/ui/Cadastro/page.js"
     ],
     "/entidades/receita/[id]/page": [
       "static/chunks/webpack.js",
@@ -60,10 +54,29 @@
       "static/css/app/entidades/receita/[id]/page.css",
       "static/chunks/app/entidades/receita/[id]/page.js"
     ],
-    "/_not-found/page": [
+    "/entidades/receita/cadastro/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/css/app/entidades/receita/cadastro/page.css",
+      "static/chunks/app/entidades/receita/cadastro/page.js"
+    ],
+    "/entidades/tags/cadastro/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/entidades/tags/cadastro/page.css",
+      "static/chunks/app/entidades/tags/cadastro/page.js"
+    ],
+    "/entidades/tags/alterar_excluir/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/entidades/tags/alterar_excluir/page.css",
+      "static/chunks/app/entidades/tags/alterar_excluir/page.js"
+    ],
+    "/entidades/ingrediente/alterar_excluir/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/entidades/ingrediente/alterar_excluir/page.css",
+      "static/chunks/app/entidades/ingrediente/alterar_excluir/page.js"
     ]
   }
 }

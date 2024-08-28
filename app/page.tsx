@@ -98,24 +98,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
-      <div id="loginPopup" className="popup" ref={loginPopupRef} style={{ display: "none" }}>
-        <h2>Login</h2>
-        <form>
-          <label htmlFor="username">Usuário:</label>
-          <br />
-          <input type="text" id="username" name="username" />
-          <br />
-          <br />
-          <label htmlFor="password">Senha:</label>
-          <br />
-          <input type="password" id="password" name="password" />
-          <br />
-          <br />
-          <button type="submit">Entrar</button>
-        </form>
-        <button onClick={closePopup}>Fechar</button>
-      </div>
     </>
   );
 }
