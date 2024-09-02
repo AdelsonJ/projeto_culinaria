@@ -1,7 +1,6 @@
 {
   "/page": "app/page.js",
-  "/entidades/tags/page": "app/entidades/tags/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js",
-  "/entidades/ingrediente/cadastro/page": "app/entidades/ingrediente/cadastro/page.js",
-  "/entidades/tags/alterar_excluir/page": "app/entidades/tags/alterar_excluir/page.js"
+  "/entidades/tags/page": "app/entidades/tags/page.js"
 }
