@@ -14,5 +14,9 @@
   {
     "name": "AAAAAAAAAAAA",
     "icon": "/images/moqueca.jpg"
+  },
+  {
+    "name": "Lactose",
+    "icon": "/images/coxinha.jpg"
   }
 ]
