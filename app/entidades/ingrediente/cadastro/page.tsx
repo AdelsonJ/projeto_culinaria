@@ -7,25 +7,31 @@ import { useRouter } from "next/navigation";
 
 type FormDataType = {
     name: string;
-    icon: string;
-    receitaId: string;
-    quantidade: string;
+    tags: string[];  // Lista de tags associadas
 };
 
 export default function IngredientesCadastro() {
     const [formData, setFormData] = useState<FormDataType>({
         name: "",
-        icon: "",
+        tags: [],
     });
 
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prevState => ({
-            ...prevState,
-            [name]: value
-        }));
+        if (name === 'tags') {
+            const tagsArray = value.split(',').map(tag => tag.trim());
+            setFormData(prevState => ({
+                ...prevState,
+                tags: tagsArray,
+            }));
+        } else {
+            setFormData(prevState => ({
+                ...prevState,
+                [name]: value,
+            }));
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -46,7 +52,7 @@ export default function IngredientesCadastro() {
             alert('Ingrediente cadastrado com sucesso!');
             setFormData({
                 name: "",
-                icon: "",
+                tags: [],
             });
             
             router.push('/entidades/ingrediente');

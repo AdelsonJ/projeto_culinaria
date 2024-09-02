@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles_ingredientes from "../ingrediente.module.css";
 
 interface IngredienteFormProps {
-    ingredienteDetails: { name: string };
-    handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    handleUpdate: (e: React.MouseEvent<HTMLButtonElement>) => void;     
+    ingredienteDetails: { name: string; tags: string; };
+    handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+    handleUpdate: (e: React.MouseEvent<HTMLButtonElement>) => void;
     handleDelete: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}
+
+interface Tag {
+    name: string;
+    description: string;
 }
 
 const IngredienteForm: React.FC<IngredienteFormProps> = ({
@@ -14,6 +19,21 @@ const IngredienteForm: React.FC<IngredienteFormProps> = ({
     handleUpdate,
     handleDelete
 }) => {
+    const [tags, setTags] = useState<Tag[]>([]);
+
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/tags');
+                const data = await response.json();
+                setTags(data);
+            } catch (error) {
+                console.error("Erro ao buscar tags:", error);
+            }
+        };
+        fetchTags();
+    }, []);
+
     return (
         <>
             <label htmlFor="name">Nome:</label>
@@ -25,6 +45,22 @@ const IngredienteForm: React.FC<IngredienteFormProps> = ({
                 value={ingredienteDetails.name}
                 onChange={handleInputChange}
             />
+            <br />
+            <label htmlFor="tags">Tags:</label>
+            <br />
+            <select
+                id="tags"
+                name="tags"
+                value={ingredienteDetails.tags}
+                onChange={handleInputChange}
+            >
+                <option value="">Selecione uma tag</option>
+                {tags.map(tag => (
+                    <option key={tag.name} value={tag.name}>
+                        {tag.name} - {tag.description}
+                    </option>
+                ))}
+            </select>
             <br />
             <br />
             <button className={styles_ingredientes.button} type="submit" onClick={handleUpdate}>

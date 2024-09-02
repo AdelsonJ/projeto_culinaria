@@ -1,7 +1,7 @@
 {
+  "/page": "app/page.js",
   "/entidades/receita/page": "app/entidades/receita/page.js",
   "/entidades/receita/cadastro/page": "app/entidades/receita/cadastro/page.js",
-  "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js",
-  "/page": "app/page.js",
-  "/entidades/ingrediente/alterar_excluir/page": "app/entidades/ingrediente/alterar_excluir/page.js"
+  "/entidades/receita/[id]/page": "app/entidades/receita/[id]/page.js",
+  "/entidades/ingrediente/page": "app/entidades/ingrediente/page.js"
 }

@@ -69,6 +69,7 @@ export default function CadastrarReceita() {
       router.push('/entidades/receita');
     } catch (error) {
       console.error('Erro ao cadastrar ou alterar a receita', error);
+      alert('Erro ao cadastrar ou alterar a receita. Tente novamente.');
     }
   };
 
@@ -77,7 +78,7 @@ export default function CadastrarReceita() {
     if (quantidade) {
       const ingredienteComQuantidade = {
         ...ingrediente,
-        quantidade  // Armazena a quantidade como texto
+        quantidade  // Armazena a quantidade inserida
       };
       setIngredientesSelecionados((prev) => [...prev, ingredienteComQuantidade]);
     }

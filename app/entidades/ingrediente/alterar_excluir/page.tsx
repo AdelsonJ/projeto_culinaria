@@ -8,19 +8,20 @@ import { useRouter } from "next/navigation";
 
 interface Ingrediente {
     name: string;
+    tags: string[];  // Lista de tags associadas
 }
 
 export default function IngredientesAlterarExcluir() {
     const [ingredientes, setIngredientes] = useState<Ingrediente[]>([]);
     const [selectedIngrediente, setSelectedIngrediente] = useState<string>("");
-    const [ingredienteDetails, setIngredienteDetails] = useState<Ingrediente>({ name: "" });
+    const [ingredienteDetails, setIngredienteDetails] = useState<Ingrediente>({ name: "", tags: [] });
 
     const router = useRouter();
 
     useEffect(() => {
         const fetchIngredientes = async () => {
             try {
-                const response = await fetch('http://localhost:5000/ingredientes');
+                const response = await fetch('http://localhost:5000/ingredientes_com_tags');
                 if (!response.ok) {
                     throw new Error(`Erro na resposta: ${response.statusText}`);
                 }
@@ -43,12 +44,20 @@ export default function IngredientesAlterarExcluir() {
         }
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setIngredienteDetails({
-            ...ingredienteDetails,
-            [name]: value,
-        });
+        if (name === 'tags') {
+            const tagsArray = value.split(',').map(tag => tag.trim());
+            setIngredienteDetails({
+                ...ingredienteDetails,
+                tags: tagsArray,
+            });
+        } else {
+            setIngredienteDetails({
+                ...ingredienteDetails,
+                [name]: value,
+            });
+        }
     };
 
     const handleUpdate = async () => {
@@ -91,7 +100,7 @@ export default function IngredientesAlterarExcluir() {
             alert('Ingrediente excluído com sucesso!');
             setIngredientes(ingredientes.filter(ingrediente => ingrediente.name !== selectedIngrediente));
             setSelectedIngrediente("");
-            setIngredienteDetails({ name: "" });
+            setIngredienteDetails({ name: "", tags: [] });
 
             router.push('/entidades/ingrediente');
         } catch (error) {

@@ -32,9 +32,9 @@ export default function Template({
             <ul>
               <li><Link href="/">Home</Link></li>
               {isLoggedIn && (
-                <>
-                  <li><Link href="/entidades/ingrediente">Ingrediente</Link></li>
+                <>                  
                   <li><Link href="/entidades/receita">Receitas</Link></li>
+                  <li><Link href="/entidades/ingrediente">Ingrediente</Link></li>
                   <li><Link href="/entidades/tags">Tags</Link></li>
                 </>
               )}

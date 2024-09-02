@@ -5,6 +5,7 @@ import styles from "./ingrediente.module.css";
 
 interface Ingrediente {
     name: string;
+    tags: string[];  // Adiciona um array de strings para as tags
 }
 
 export default function DataTable() {
@@ -15,7 +16,7 @@ export default function DataTable() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('http://localhost:5000/ingredientes');
+                const response = await fetch('http://localhost:5000/ingredientes_com_tags'); // Supondo que o endpoint foi atualizado
                 if (!response.ok) {
                     throw new Error(`Erro na resposta: ${response.statusText}`);
                 }
@@ -50,12 +51,14 @@ export default function DataTable() {
                 <thead>
                     <tr>
                         <th>Nome</th>
+                        <th>Tags</th>  {/* Nova coluna para as tags */}
                     </tr>
                 </thead>
                 <tbody>
                     {data.map((item, index) => (
                         <tr key={index}>
                             <td>{item.name}</td>
+                            <td>{item.tags.join(', ')}</td>  {/* Exibe as tags separadas por vírgulas */}
                         </tr>
                     ))}
                 </tbody>

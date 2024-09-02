@@ -177,45 +177,84 @@ def get_receitas():
     return jsonify(receitas_detalhadas)
 
 # Obter uma receita por ID
-@app.route("/receitas/<int:id>", methods=["GET"])
-def get_receita(id):
+@app.route("/receitas", methods=["GET"])
+def get_receitas_filtered():
+    nome = request.args.get('nome')
+    tags = request.args.getlist('tags[]')
+    ingredientes = request.args.getlist('ingredientes[]')
+    
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT id, nome, data_pub, nota, "usuarioUsername", "modoPreparo" FROM "Receita" WHERE id=%s', (id,))
-    receita = cursor.fetchone()
-    if not receita:
-        return jsonify({"detail": "Receita não encontrada"}), 404
+
+    query = '''
+        SELECT r.id, r.nome, r.data_pub, r.nota, r."usuarioUsername", r."modoPreparo"
+        FROM "Receita" r
+        LEFT JOIN "Contem" c ON r.id = c."receitaId"
+        LEFT JOIN "Ingrediente" i ON c."ingredNome" = i.nome
+        LEFT JOIN "Classifica" cl ON i.nome = cl."ingredNome"
+        LEFT JOIN "Tag" t ON cl."tagNome" = t.nome
+    '''
+    conditions = []
+    params = []
+
+    if nome:
+        conditions.append('r.nome ILIKE %s')
+        params.append(f'%{nome}%')
+
+    if tags:
+        conditions.append('t.nome = ANY(%s)')
+        params.append(tags)
+
+    if ingredientes:
+        conditions.append('i.nome = ANY(%s)')
+        params.append(ingredientes)
+
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
     
-    cursor.execute("""
-        SELECT ing.nome, con.quantidade
-        FROM "Ingrediente" ing
-        JOIN "Contem" con ON con."ingredNome" = ing.nome
-        WHERE con."receitaId" = %s
-    """, (id,))
-    ingredientes = cursor.fetchall()
-    
+    query += ' GROUP BY r.id'
+
+    cursor.execute(query, tuple(params))
+    receitas = cursor.fetchall()
+
+    receitas_detalhadas = []
+    for receita in receitas:
+        cursor.execute("""
+            SELECT ing.nome, con.quantidade
+            FROM "Ingrediente" ing
+            JOIN "Contem" con ON con."ingredNome" = ing.nome
+            WHERE con."receitaId" = %s
+        """, (receita[0],))
+        ingredientes = cursor.fetchall()
+        receitas_detalhadas.append({
+            'id': receita[0],
+            'nome': receita[1],
+            'data_pub': receita[2],
+            'nota': receita[3],
+            'usuarioUsername': receita[4],
+            'modoPreparo': receita[5],
+            'ingredientes': [{'nome': ing[0], 'quantidade': ing[1]} for ing in ingredientes]
+        })
+
     cursor.close()
     conn.close()
-    return jsonify({
-        'id': receita[0],
-        'nome': receita[1],
-        'data_pub': receita[2],
-        'nota': receita[3],
-        'usuarioUsername': receita[4],
-        'modoPreparo': receita[5],
-        'ingredientes': [{'nome': ing[0], 'quantidade': ing[1]} for ing in ingredientes]
-    })
+    return jsonify(receitas_detalhadas)
 
-# Criar nova receita
+
+
 @app.route("/receitas", methods=["POST"])
 def create_receita():
     data = request.get_json()
-    usuario_username = data.get('usuarioUsername', 'admin')  # Define 'admin' como padrão se o usuário não for fornecido
+    usuario_username = data.get('usuarioUsername', 'admin')
     conn = connect_db()
     cursor = conn.cursor()
 
     try:
-        # Insere a nova receita, definindo a nota como 1
+        # Verifica se todos os campos obrigatórios foram fornecidos
+        if not all(key in data for key in ('nome', 'data_pub', 'modoPreparo', 'ingredientes')):
+            return jsonify({"message": "Campos obrigatórios faltando"}), 400
+
+        # Insere a nova receita
         cursor.execute("""
             INSERT INTO "Receita" (nome, data_pub, nota, "usuarioUsername", "modoPreparo") 
             VALUES (%s, %s, %s, %s, %s) RETURNING id
@@ -224,16 +263,7 @@ def create_receita():
 
         # Insere os ingredientes e cria a relação na tabela `Contem`
         for ingrediente in data['ingredientes']:
-            quantidade = ingrediente.get('quantidade')
-            if not quantidade:  # Se a quantidade estiver ausente ou nula, definir como 1
-                quantidade = '1'
-            
-            # Verifica se o ingrediente já existe
-            cursor.execute("""
-                INSERT INTO "Ingrediente" (nome, "usuarioUsername") 
-                VALUES (%s, %s)
-                ON CONFLICT (nome) DO NOTHING
-            """, (ingrediente['nome'], usuario_username))
+            quantidade = ingrediente.get('quantidade', '1')  # Define 1 como padrão
 
             # Insere a relação na tabela `Contem`
             cursor.execute("""
@@ -244,15 +274,15 @@ def create_receita():
         conn.commit()
         return jsonify({"message": "Receita criada com sucesso!", "id": receita_id}), 201
 
-    except Exception as e:
+    except psycopg2.Error as e:
         conn.rollback()
         return jsonify({"message": "Erro ao criar receita", "error": str(e)}), 500
+
     finally:
         cursor.close()
         conn.close()
 
 
-@app.route("/receitas/<int:id>", methods=["PUT"])
 @app.route("/receitas/<int:id>", methods=["PUT"])
 def update_receita(id):
     data = request.get_json()
@@ -260,33 +290,45 @@ def update_receita(id):
     conn = connect_db()
     cursor = conn.cursor()
 
-    # Atualiza a receita, fixando a nota como 1
-    cursor.execute("""
-        UPDATE "Receita" SET nome=%s, nota=%s, "modoPreparo"=%s WHERE id=%s
-    """, (data['nome'], 1, data['modoPreparo'], id))
+    try:
+        # Verifica se todos os campos obrigatórios foram fornecidos
+        if not all(key in data for key in ('nome', 'modoPreparo', 'ingredientes')):
+            return jsonify({"message": "Campos obrigatórios faltando"}), 400
 
-    # Remove os ingredientes atuais da receita
-    cursor.execute('DELETE FROM "Contem" WHERE "receitaId"=%s', (id,))
-
-    # Adiciona os novos ingredientes
-    for ingrediente in data['ingredientes']:
-        quantidade = ingrediente.get('quantidade') or '1'  # Define um valor padrão para quantidade se for None ou vazio
+        # Atualiza a receita
         cursor.execute("""
-            INSERT INTO "Ingrediente" (nome, "usuarioUsername") 
-            VALUES (%s, %s)
-            ON CONFLICT (nome) DO NOTHING
-        """, (ingrediente['nome'], usuario_username))
+            UPDATE "Receita" SET nome=%s, nota=%s, "modoPreparo"=%s WHERE id=%s
+        """, (data['nome'], 1, data['modoPreparo'], id))
+
+        # Remove os ingredientes atuais da receita
+        cursor.execute('DELETE FROM "Contem" WHERE "receitaId"=%s', (id,))
+
+        # Adiciona os novos ingredientes
+        for ingrediente in data['ingredientes']:
+            nome_ingrediente = ingrediente.get('nome')
+            quantidade = ingrediente.get('quantidade', '1')  # Define 1 como padrão
+
+            if nome_ingrediente:
+
+                
+                # Insere a relação na tabela `Contem`
+                cursor.execute("""
+                    INSERT INTO "Contem" ("receitaId", "ingredNome", quantidade) 
+                    VALUES (%s, %s, %s)
+                """, (id, nome_ingrediente, quantidade))
+
+        conn.commit()
+        return jsonify({"message": "Receita atualizada com sucesso!"}), 200
+
+    except psycopg2.Error as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao atualizar receita", "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
         
-        cursor.execute("""
-            INSERT INTO "Contem" ("receitaId", "ingredNome", quantidade) 
-            VALUES (%s, %s, %s)
-        """, (id, ingrediente['nome'], quantidade))
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-    return jsonify({"message": "Receita atualizada com sucesso"}), 200
 
 @app.route("/receitas/<int:id>", methods=["DELETE"])
 def delete_receita(id):
@@ -315,66 +357,129 @@ def get_ingredientes():
     ingredientes_list = [{'name': ing[0]} for ing in ingredientes]
     return jsonify(ingredientes_list)
 
+@app.route("/ingredientes/<string:name>", methods=["PUT"])
+def update_ingrediente_com_tags(name):
+    data = request.get_json()
+    usuario_username = data.get('usuarioUsername', 'admin')
+    tags = data.get('tags', [])  # Lista de tags associadas
+
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        # Verificar se todas as tags existem
+        cursor.execute("SELECT nome FROM \"Tag\" WHERE nome IN %s", (tuple(tags),))
+        existing_tags = cursor.fetchall()
+        existing_tags = [tag[0] for tag in existing_tags]
+
+        # Verificar se todas as tags fornecidas existem no banco de dados
+        missing_tags = [tag for tag in tags if tag not in existing_tags]
+        if missing_tags:
+            return jsonify({"error": f"As seguintes tags não existem: {', '.join(missing_tags)}"}), 400
+
+        # Atualizar o ingrediente
+        cursor.execute("""
+            UPDATE "Ingrediente" 
+            SET "nome"=%s, "icone"=NULL, "usuarioUsername"=%s 
+            WHERE "nome"=%s
+        """, (data['name'], usuario_username, name))
+
+        # Remover as tags atuais associadas ao ingrediente
+        cursor.execute("""
+            DELETE FROM "Classifica" WHERE "ingredNome"=%s
+        """, (name,))
+
+        # Adicionar as novas tags associadas ao ingrediente
+        for tag in tags:
+            cursor.execute("""
+                INSERT INTO "Classifica" ("ingredNome", "tagNome", quantidade)
+                VALUES (%s, %s, '1')
+            """, (data['name'], tag))
+
+        conn.commit()
+        return jsonify({"message": "Ingrediente atualizado com sucesso!"}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao atualizar ingrediente", "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# Criar um novo ingrediente com tags associadas
 @app.route("/ingredientes", methods=["POST"])
-def create_ingrediente():
+def create_ingrediente_com_tags():
     data = request.get_json()
     nome = data.get('name')
-    icone = None  # Define icone como NULL
-    receita_id = None  # Define receitaId como NULL
-    usuario_username = 'admin'  # Define o usuário como 'admin' por padrão
-    quantidade = '1'  # Define quantidade como '1' por padrão
+    tags = data.get('tags', [])  # Lista de tags associadas
+    usuario_username = data.get('usuarioUsername', 'admin')
 
     if not nome:
         return jsonify({"error": "O nome do ingrediente é obrigatório"}), 400
 
     conn = connect_db()
     cursor = conn.cursor()
-    
-    cursor.execute("""
-        INSERT INTO "Ingrediente" (nome, icone, "receitaId", "usuarioUsername", quantidade) 
-        VALUES (%s, %s, %s, %s, %s)
-    """, (nome, icone, receita_id, usuario_username, quantidade))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    return jsonify({"message": "Ingrediente criado com sucesso!"}), 201
 
-# Endpoint para atualizar um ingrediente
-@app.route("/ingredientes/<string:name>", methods=["PUT"])
-def update_ingrediente(name):
-    data = request.get_json()
-    usuario_username = data.get('usuarioUsername', 'admin')  # Define 'admin' como padrão se o usuário não for fornecido
-    
-    conn = connect_db()
-    cursor = conn.cursor()
-    
-    # Atualiza o ingrediente com apenas o nome e usa valores padrão para os outros campos
-    cursor.execute("""
-        UPDATE "Ingrediente" 
-        SET "nome"=%s, "icone"=NULL, "receitaId"=1, "quantidade"='1', "usuarioUsername"=%s 
-        WHERE "nome"=%s
-    """, (data['name'], usuario_username, name))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    return jsonify({"message": "Ingrediente atualizado com sucesso"}), 200
+    try:
+        # Verificar se todas as tags existem
+        cursor.execute("SELECT nome FROM \"Tag\" WHERE nome IN %s", (tuple(tags),))
+        existing_tags = cursor.fetchall()
+        existing_tags = [tag[0] for tag in existing_tags]
+
+        # Verificar se todas as tags fornecidas existem no banco de dados
+        missing_tags = [tag for tag in tags if tag not in existing_tags]
+        if missing_tags:
+            return jsonify({"error": f"As seguintes tags não existem: {', '.join(missing_tags)}"}), 400
+
+        # Inserir o novo ingrediente
+        cursor.execute("""
+            INSERT INTO "Ingrediente" (nome, "icone", "receitaId", "usuarioUsername", "quantidade") 
+            VALUES (%s, NULL, NULL, %s, '1')
+            ON CONFLICT (nome) DO NOTHING
+        """, (nome, usuario_username))
+
+        # Adicionar as tags associadas ao ingrediente
+        for tag in tags:
+            cursor.execute("""
+                INSERT INTO "Classifica" ("ingredNome", "tagNome", quantidade)
+                VALUES (%s, %s, '1')
+            """, (nome, tag))
+
+        conn.commit()
+        return jsonify({"message": "Ingrediente criado com sucesso!"}), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao criar ingrediente", "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+        
 # Endpoint para excluir um ingrediente
 @app.route("/ingredientes/<string:name>", methods=["DELETE"])
 def delete_ingrediente(name):
     conn = connect_db()
     cursor = conn.cursor()
-    
-    cursor.execute('DELETE FROM "Ingrediente" WHERE nome=%s', (name,))
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
-    
-    return jsonify({"message": "Ingrediente excluído com sucesso!"}), 200
+
+    try:
+        # Deletar as relações na tabela Classifica
+        cursor.execute('DELETE FROM "Classifica" WHERE "ingredNome"=%s', (name,))
+
+        # Deletar o ingrediente
+        cursor.execute('DELETE FROM "Ingrediente" WHERE nome=%s', (name,))
+
+        conn.commit()
+        return jsonify({"message": "Ingrediente excluído com sucesso!"}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao excluir ingrediente", "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 ################################################################ TAG
 @app.route("/tags", methods=["GET"])
 def get_tags():
@@ -429,14 +534,82 @@ def update_tag(nome):
 def delete_tag(nome):
     conn = connect_db()
     cursor = conn.cursor()
-    
-    cursor.execute('DELETE FROM "Tag" WHERE nome=%s', (nome,))
-    
-    conn.commit()
+
+    try:
+        # Deletar todas as entradas na tabela Classifica relacionadas à tag
+        cursor.execute('DELETE FROM "Classifica" WHERE "tagNome"=%s', (nome,))
+        
+        # Deletar a tag
+        cursor.execute('DELETE FROM "Tag" WHERE nome=%s', (nome,))
+        
+        conn.commit()
+        return jsonify({"message": "Tag e suas classificações foram excluídas com sucesso!"}), 200
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao excluir a tag", "error": str(e)}), 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route("/classifica", methods=["POST"])
+def create_classifica():
+    data = request.get_json()
+    conn = connect_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            INSERT INTO "Classifica" ("ingredNome", "tagNome", quantidade)
+            VALUES (%s, %s, %s)
+            ON CONFLICT ("ingredNome", "tagNome") DO UPDATE
+            SET quantidade = EXCLUDED.quantidade
+        """, (data['ingredNome'], data['tagNome'], data['quantidade']))
+
+        conn.commit()
+        return jsonify({"message": "Classificação criada/atualizada com sucesso!"}), 201
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({"message": "Erro ao criar/atualizar classificação", "error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.route("/classifica", methods=["GET"])
+def get_classifica():
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT "ingredNome", "tagNome", quantidade FROM "Classifica"')
+    classifica = cursor.fetchall()
     cursor.close()
     conn.close()
+
+    classifica_list = [{'ingredNome': item[0], 'tagNome': item[1], 'quantidade': item[2]} for item in classifica]
+    return jsonify(classifica_list)
+
+@app.route("/ingredientes_com_tags", methods=["GET"])
+def get_ingredientes_com_tags():
+    conn = connect_db()
+    cursor = conn.cursor()
     
-    return jsonify({"message": "Tag deletada com sucesso!"}), 200
+    # Consulta que une Ingredientes com as Tags
+    cursor.execute("""
+        SELECT i.nome, array_agg(t.nome) as tags
+        FROM "Ingrediente" i
+        LEFT JOIN "Classifica" c ON i.nome = c."ingredNome"
+        LEFT JOIN "Tag" t ON c."tagNome" = t.nome
+        GROUP BY i.nome
+    """)
+    
+    ingredientes = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # Mapeando os resultados para um formato adequado para o front-end
+    ingredientes_list = [{'name': ing[0], 'tags': ing[1] if ing[1] else []} for ing in ingredientes]
+    return jsonify(ingredientes_list)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
