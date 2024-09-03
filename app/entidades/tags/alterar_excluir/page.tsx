@@ -6,16 +6,16 @@ import TagSelect from "./campoFormulario";
 import TagForm from "./formulario";
 import { useRouter } from "next/navigation";
 
-// Define a interface for a tag
 interface Tag {
     name: string;
     description: string;
+    color: string;
 }
 
 export default function TagsAlterarExcluir() {
     const [tags, setTags] = useState<Tag[]>([]);
     const [selectedTag, setSelectedTag] = useState<string>("");
-    const [tagDetails, setTagDetails] = useState<Tag>({ name: "", description: "" });
+    const [tagDetails, setTagDetails] = useState<Tag>({ name: "", description: "", color: "" });
 
     const router = useRouter();
 
@@ -30,7 +30,7 @@ export default function TagsAlterarExcluir() {
                 data.sort((a, b) => a.name.localeCompare(b.name));
                 setTags(data);
             } catch (error) {
-                console.error("Erro ao buscar o arquivo JSON:", error);
+                console.error("Erro ao buscar tags:", error);
             }
         };
         fetchTags();
@@ -59,30 +59,21 @@ export default function TagsAlterarExcluir() {
             return;
         }
 
-        const updatedTags = tags.map(tag =>
-            tag.name === selectedTag ? tagDetails : tag
-        );
-
-        const updatedData = JSON.stringify(updatedTags, null, 2);
-
         try {
-            const saveResponse = await fetch('http://localhost:5000/saveTags', {
-                method: 'POST',
+            const response = await fetch(`http://localhost:5000/tags/${selectedTag}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: updatedData,
+                body: JSON.stringify({ ...tagDetails, usuarioUsername: 'admin' }),
             });
-            if (!saveResponse.ok) {
-                throw new Error(`Erro na resposta: ${saveResponse.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Erro na resposta: ${response.statusText}`);
             }
             alert('Tag atualizada com sucesso!');
-            setTags(updatedTags);
-            setSelectedTag("");
-            setTagDetails({ name: "", description: "" });
             router.push('/entidades/tags');
         } catch (error) {
-            console.error("Erro ao salvar o arquivo JSON:", error);
+            console.error("Erro ao atualizar tag:", error);
         }
     };
 
@@ -92,29 +83,21 @@ export default function TagsAlterarExcluir() {
             return;
         }
 
-        const updatedTags = tags.filter(tag => tag.name !== selectedTag);
-
-        const updatedData = JSON.stringify(updatedTags, null, 2);
-
         try {
-            const saveResponse = await fetch('http://localhost:5000/saveTags', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: updatedData,
+            const response = await fetch(`http://localhost:5000/tags/${selectedTag}`, {
+                method: 'DELETE',
             });
-            if (!saveResponse.ok) {
-                throw new Error(`Erro na resposta: ${saveResponse.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Erro na resposta: ${response.statusText}`);
             }
             alert('Tag excluída com sucesso!');
-            setTags(updatedTags);
+            setTags(tags.filter(tag => tag.name !== selectedTag));
             setSelectedTag("");
-            setTagDetails({ name: "", description: "" });
+            setTagDetails({ name: "", description: "", color: "" });
 
             router.push('/entidades/tags');
         } catch (error) {
-            console.error("Erro ao salvar o arquivo JSON:", error);
+            console.error("Erro ao excluir tag:", error);
         }
     };
 

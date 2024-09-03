@@ -1,30 +1,28 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import styles from "./ingrediente.module.css"; 
 
-interface ingrediente {
+interface Ingrediente {
     name: string;
-    icon: string;
+    tags: string[];  // Adiciona um array de strings para as tags
 }
 
 export default function DataTable() {
-    const [data, setData] = useState<ingrediente[]>([]);
+    const [data, setData] = useState<Ingrediente[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('/json/ingredientes.json');
+                const response = await fetch('http://localhost:5000/ingredientes_com_tags'); // Supondo que o endpoint foi atualizado
                 if (!response.ok) {
                     throw new Error(`Erro na resposta: ${response.statusText}`);
                 }
-                const result: ingrediente[] = await response.json();
+                const result: Ingrediente[] = await response.json();
                 setData(result);
             } catch (error) {
-                // Verifica se o erro é uma instância de Error e obtém a mensagem
                 if (error instanceof Error) {
                     setError(error.message);
                 } else {
@@ -48,27 +46,19 @@ export default function DataTable() {
 
     return (
         <div className={styles.tableContainer}>
-            <h2>Dados das ingredientes</h2>
+            <h2>Lista de Ingredientes</h2>
             <table className={styles.table}>
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Icone</th>
+                        <th>Tags</th>  {/* Nova coluna para as tags */}
                     </tr>
                 </thead>
                 <tbody>
                     {data.map((item, index) => (
                         <tr key={index}>
-                        <td>{item.name}</td>
-                        <td>
-                            <Image 
-                            src={item.icon} 
-                            alt={item.name} 
-                            width={50} 
-                            height={50} 
-                            objectFit="cover" 
-                            />
-                        </td>
+                            <td>{item.name}</td>
+                            <td>{item.tags.join(', ')}</td>  {/* Exibe as tags separadas por vírgulas */}
                         </tr>
                     ))}
                 </tbody>

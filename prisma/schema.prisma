@@ -1,0 +1,127 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  username  String   @id
+  email     String   @unique
+  senha     String
+  data_nasc DateTime
+  idade     Int
+  tipo      String
+
+  Receitas     Receita[]
+  Avaliacoes   Avaliacao[]
+  Ingredientes Ingrediente[]
+  Tags         Tag[]
+  Favoritos    Favorito[]
+  Alergias     Alergia[]
+}
+
+model Tag {
+  nome            String @id
+  descricao       String
+  cor             String
+  usuarioUsername String
+
+  Usuario     Usuario      @relation(fields: [usuarioUsername], references: [username])
+  Receitas    Receita[]
+  Classificas Classifica[]
+  Alergias    Alergia[]
+}
+
+model Ingrediente {
+  nome            String  @id
+  icone           String?
+  receitaId       Int?
+  usuarioUsername String
+  quantidade      String
+
+  Usuario     Usuario      @relation(fields: [usuarioUsername], references: [username])
+  Receita     Receita?     @relation(fields: [receitaId], references: [id])
+  Contems     Contem[]
+  Classificas Classifica[]
+}
+
+model Receita {
+  id              Int      @id @default(autoincrement())
+  nome            String   @unique
+  data_pub        DateTime
+  nota            Float
+  usuarioUsername String
+  modoPreparo     String
+
+  Usuario      Usuario       @relation(fields: [usuarioUsername], references: [username])
+  Ingredientes Ingrediente[]
+  Tags         Tag[]
+  Avaliacoes   Avaliacao[]
+  Contems      Contem[]
+  Favoritos    Favorito[]
+  Imagens      Imagem[]
+}
+
+model Avaliacao {
+  id              Int      @id @default(autoincrement())
+  usuarioUsername String
+  hora            DateTime
+  data            DateTime
+  texto           String
+  receitaId       Int
+
+  Usuario Usuario @relation(fields: [usuarioUsername], references: [username])
+  Receita Receita @relation(fields: [receitaId], references: [id])
+}
+
+model Alergia {
+  usuarioUsername String
+  tagNome         String
+
+  Usuario Usuario @relation(fields: [usuarioUsername], references: [username])
+  Tag     Tag     @relation(fields: [tagNome], references: [nome])
+
+  @@id([usuarioUsername, tagNome])
+}
+
+model Contem {
+  receitaId  Int
+  ingredNome String
+  quantidade String
+
+  Receita     Receita     @relation(fields: [receitaId], references: [id])
+  Ingrediente Ingrediente @relation(fields: [ingredNome], references: [nome])
+
+  @@id([receitaId, ingredNome])
+}
+
+model Classifica {
+  ingredNome String
+  tagNome    String
+  quantidade String
+
+  Ingrediente Ingrediente @relation(fields: [ingredNome], references: [nome])
+  Tag         Tag         @relation(fields: [tagNome], references: [nome])
+
+  @@id([ingredNome, tagNome])
+}
+
+model Favorito {
+  usuarioUsername String
+  receitaId       Int
+
+  Usuario Usuario @relation(fields: [usuarioUsername], references: [username])
+  Receita Receita @relation(fields: [receitaId], references: [id])
+
+  @@id([usuarioUsername, receitaId])
+}
+
+model Imagem {
+  receitaId Int
+  imagemCod String @id
+
+  Receita Receita @relation(fields: [receitaId], references: [id])
+}

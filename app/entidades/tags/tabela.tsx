@@ -17,14 +17,13 @@ export default function DataTable() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('/json/tags.json');
+                const response = await fetch('http://localhost:5000/tags');
                 if (!response.ok) {
                     throw new Error(`Erro na resposta: ${response.statusText}`);
                 }
                 const result: Tag[] = await response.json();
                 setData(result);
             } catch (error) {
-                // Verifica se o erro é uma instância de Error e obtém a mensagem
                 if (error instanceof Error) {
                     setError(error.message);
                 } else {

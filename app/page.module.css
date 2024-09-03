@@ -19,6 +19,14 @@
   align-items: center;
 }
 
+.gallery_row {
+  display: flex;
+}
+
+.gallery_row figure {
+  text-align: left; /* Centraliza o texto e a imagem */
+}
+
 
 .recipe{
   background-color: #ffffff;
